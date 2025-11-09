@@ -25,3 +25,25 @@ jobs:
           context: .
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/nginx-payment:1.0
+
+  deploy-and-test:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Pull built container (optional if local)
+        run: docker pull ${{ secrets.DOCKERHUB_USERNAME }}/nginx-payment:1.0
+
+      - name: Run container locally
+        run: docker run -d --name nginx-payment -p 8080:80 ${{ secrets.DOCKERHUB_USERNAME }}/nginx-payment:1.0
+
+      - name: Wait for container readiness
+        run: sleep 5
+
+      - name: Curl nginx container
+        run: |
+          curl -s http://localhost:8080 | tee nginx-out.html
+          grep "Welcome to NGINX" nginx-out.html
+
+      - name: Stop and clean up container
+        run: docker rm -f test-nginx
