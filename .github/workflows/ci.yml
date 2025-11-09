@@ -46,4 +46,4 @@ jobs:
           grep "Welcome to NGINX" nginx-out.html
 
       - name: Stop and clean up container
-        run: docker rm -f test-nginx
+        run: docker rm -f nginx-payment
